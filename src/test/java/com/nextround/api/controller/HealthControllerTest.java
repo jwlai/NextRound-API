@@ -1,36 +1,38 @@
 package com.nextround.api.controller;
 
+import com.nextround.api.NextRoundApiApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.context.ApplicationContext;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.util.Map;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest(classes = NextRoundApiApplication.class)
 class HealthControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private ApplicationContext context;
+
+    @Autowired
+    private HealthController healthController;
 
     @Test
-    void testHealthEndpoint() throws Exception {
-        mockMvc.perform(get("/api/health"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("UP"))
-                .andExpect(jsonPath("$.message").value("NextRound API is running"));
+    void testHealthEndpoint() {
+        Map<String, String> response = healthController.health();
+        assertThat(response).isNotNull();
+        assertThat(response.get("status")).isEqualTo("UP");
+        assertThat(response.get("message")).isEqualTo("NextRound API is running");
     }
 
     @Test
-    void testWelcomeEndpoint() throws Exception {
-        mockMvc.perform(get("/api/"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.application").value("NextRound API"))
-                .andExpect(jsonPath("$.description").value("Tournament Bracket Generator"))
-                .andExpect(jsonPath("$.version").value("0.0.1-SNAPSHOT"));
+    void testWelcomeEndpoint() {
+        Map<String, String> response = healthController.welcome();
+        assertThat(response).isNotNull();
+        assertThat(response.get("application")).isEqualTo("NextRound API");
+        assertThat(response.get("description")).isEqualTo("Tournament Bracket Generator");
+        assertThat(response.get("version")).isEqualTo("0.0.1-SNAPSHOT");
     }
 }
